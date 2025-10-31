@@ -12,7 +12,7 @@ async function DatabaseSet() {
         connection = await mysql.createConnection({
             host: 'localhost',
             user: 'root',
-            password: 'redhat@123',
+            password: 'Redhat@123',
             database: 'sample'
         });
 
@@ -29,7 +29,7 @@ app.get("/Product", async (req, res) => {
     try {
         const { name, maxPrice, minPrice, category } = req.query;
 
-        let query = "Select * from Product Where 1=1";
+        let query = "Select * from sample_product Where 1=1";
 
         if (name) query += ` AND name LIKE '%${name}%'`;
 
