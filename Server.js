@@ -1,7 +1,7 @@
 const express = require("express");
 const mysql = require("mysql2/promise");
 const cors = require("cors");
-const { fromZodError } =  require("zod-validation-error");
+const { fromZodError } = require("zod-validation-error");
 const { productSchema } = require("./validation");
 const app = express();
 
@@ -22,7 +22,7 @@ async function DatabaseSet() {
 
     return connection;
   } catch (err) {
-    // console.log("Error:", err.message);
+    console.log("Error:", err.message);
   }
 }
 
@@ -66,10 +66,18 @@ app.post("/AddProduct", async (req, res) => {
 
     const result = productSchema.safeParse(req.body);
 
-    console.log(fromZodError(result.error).toString());
-
     if (!result.success) {
       return res.status(400).send(fromZodError(result.error).toString());
+    }
+
+    const checkExistQuery = `SELECT * FROM sample_product WHERE name = ?`;
+
+    const [existingProducts] = await connection.execute(checkExistQuery, [
+      name,
+    ]);
+
+    if (existingProducts.length > 0) {
+      return res.status(409).send("Product with the same name already exists");
     }
 
     const query = `INSERT INTO sample_product (name, maxPrice, minPrice, category) VALUES (?, ?, ?, ?)`;
@@ -78,9 +86,27 @@ app.post("/AddProduct", async (req, res) => {
 
     const ProductList = await connection.execute(query, values);
 
-    // console.log(ProductList);
-
     res.status(201).send("Product Added Successfully");
+  } catch (err) {
+    res.status(500).send("Error: " + err.message);
+  }
+});
+
+app.delete("/DeleteProduct/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const checkExistQuery = `SELECT * FROM sample_product WHERE id = ?`;
+
+    const [existingProducts] = await connection.execute(checkExistQuery, [id]);
+
+    if (existingProducts.length === 0) {
+      return res.status(404).send("Product not found");
+    }
+
+    await connection.execute(`DELETE FROM sample_product WHERE id = ?`, [id]);
+
+    res.status(200).send("Product Deleted Successfully");
   } catch (err) {
     res.status(500).send("Error: " + err.message);
   }
