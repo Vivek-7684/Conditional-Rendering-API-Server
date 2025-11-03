@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const productSchema = z.object({
+  id: z.coerce.number("Id must be Number").positive("Positive Id is Required").optional(),
   name: z.coerce
     .string("Name must be Alphabet")
     .min(3, "Aleast 3 Character Alphabet is required")
@@ -20,3 +21,5 @@ export const productSchema = z.object({
     })
     .optional(),
 });
+
+console.log(productSchema.safeParse({ id: "hfgfyfg" }));

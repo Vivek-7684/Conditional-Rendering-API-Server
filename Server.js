@@ -96,6 +96,16 @@ app.delete("/DeleteProduct/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
+    if(!id) {
+      return res.status(400).send("Product Id is required");
+    }
+
+    const result = productSchema.safeParse(req.params);
+
+    if(!result.success) {
+      return res.status(400).send(fromZodError(result.error).toString());
+    }
+
     const checkExistQuery = `SELECT * FROM sample_product WHERE id = ?`;
 
     const [existingProducts] = await connection.execute(checkExistQuery, [id]);
