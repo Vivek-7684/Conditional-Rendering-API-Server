@@ -1,14 +1,21 @@
-import { z } from "zod";
+import * as z from "zod";
 
 export const productSchema = z.object({
-  id: z.coerce.number("Id must be Number").positive("Positive Id is Required").optional(),
-  name: z.coerce
-    .string("Name must be Alphabet")
+  id: z.coerce
+    .number("Id must be Number")
+    .positive("Positive Id is Required")
+    .optional(),
+  name: z
+    .string()
+    .trim()
     .min(3, "Aleast 3 Character Alphabet is required")
     .optional(),
+
   maxPrice: z.coerce
     .number("Max Price must be Number")
-    .min(1000, "Max Price must be at least 1000")
+    .refine((val) => val >= 1000, {
+      message: "Max Price must be at least 1000",
+    })
     .optional(),
   minPrice: z.coerce
     .number("Min Price must be Number")
@@ -22,4 +29,3 @@ export const productSchema = z.object({
     .optional(),
 });
 
-console.log(productSchema.safeParse({ id: "hfgfyfg" }));

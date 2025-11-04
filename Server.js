@@ -1,36 +1,30 @@
+require("dotenv").config();
 const express = require("express");
 const mysql = require("mysql2/promise");
 const cors = require("cors");
+const DatabaseSet = require("./db");
 const { fromZodError } = require("zod-validation-error");
 const { productSchema } = require("./validation");
 const app = express();
 
-let connection;
-
 app.use(cors());
-
 app.use(express.json());
 
-async function DatabaseSet() {
-  try {
-    connection = await mysql.createConnection({
-      host: "localhost",
-      user: "root",
-      password: "Redhat@123",
-      database: "sample",
-    });
+let connection;
 
-    return connection;
-  } catch (err) {
-    console.log("Error:", err.message);
-  }
-}
-
-DatabaseSet();
+(async () => {
+  connection = await DatabaseSet();
+})();
 
 app.get("/Product", async (req, res) => {
   try {
     const { name, maxPrice, minPrice, category } = req.query;
+
+    const result = productSchema.safeParse(req.query);
+
+    if (!result.success) {
+      return res.status(400).send(fromZodError(result.error).toString());
+    }
 
     let query = "Select * from sample_product Where 1=1";
 
@@ -41,12 +35,6 @@ app.get("/Product", async (req, res) => {
     if (minPrice) query += ` AND minPrice >= ${minPrice}`;
 
     if (category) query += ` AND category = '${category}'`;
-
-    const result = productSchema.safeParse(req.query);
-
-    if (!result.success) {
-      return res.status(400).send(result.error.format());
-    }
 
     const [rows] = await connection.execute(query);
 
@@ -63,6 +51,10 @@ app.get("/Product", async (req, res) => {
 app.post("/AddProduct", async (req, res) => {
   try {
     const { name, maxPrice, minPrice, category } = req.body;
+
+    if (!name || !maxPrice || !minPrice || !category) {
+      return res.status(400).send("All Fields are Required");
+    }
 
     const result = productSchema.safeParse(req.body);
 
@@ -96,13 +88,13 @@ app.delete("/DeleteProduct/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
-    if(!id) {
+    if (!id) {
       return res.status(400).send("Product Id is required");
     }
 
     const result = productSchema.safeParse(req.params);
 
-    if(!result.success) {
+    if (!result.success) {
       return res.status(400).send(fromZodError(result.error).toString());
     }
 
@@ -122,6 +114,6 @@ app.delete("/DeleteProduct/:id", async (req, res) => {
   }
 });
 
-app.listen("3000", () => {
-  console.log("Server Started at port:3000");
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`Server Started at Port:${process.env.PORT || 3000}`);
 });
