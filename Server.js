@@ -29,10 +29,15 @@ app.get("/Product", async (req, res) => {
     }
 
     let query = "Select * from sample_product Where 1=1";
+    let fields = [];
 
-    if (name) query += ` AND name LIKE '%${name}%'`;
+    if (name) {
+      query += ` AND name LIKE '%${name}%'`;
+    }
 
-    if (maxPrice) query += ` AND maxPrice <= ${maxPrice}`;
+    if (maxPrice) {
+      query += ` AND maxPrice <= ${maxPrice}`;
+    }
 
     if (minPrice) query += ` AND minPrice >= ${minPrice}`;
 

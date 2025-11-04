@@ -16,10 +16,10 @@ export const productSchema = z
               !(val[i] >= "A" && val[i] <= "Z") ||
               (val[i] >= "a" && val[i] <= "z")
             ) {
-              return false;
+              return true;
             }
           }
-          return true;
+          return false;
         },
         { message: "Alphabets are only allowed." }
       )
@@ -35,12 +35,15 @@ export const productSchema = z
     maxPrice: z.coerce
       .number("Max Price must be Number")
       .refine((val) => val >= 1000, {
+        // if condition fails,then error
         message: "Max Price must be at least 1000",
       })
       .optional(),
     minPrice: z.coerce
       .number("Min Price must be Number")
-      .min(500, "Min Price must be at least 500")
+      .refine((val) => val >= 500, {
+        message: "Min Price must be at least 500",
+      })
       .optional(),
     category: z
       .enum(["Electronics", "Cloth", "Accessories", "Sports"], {
