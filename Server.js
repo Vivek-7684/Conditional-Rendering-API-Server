@@ -5,9 +5,11 @@ const cors = require("cors");
 const DatabaseSet = require("./db");
 const { fromZodError } = require("zod-validation-error");
 const { productSchema } = require("./validation");
+const sanitizeHtml = require("sanitize-html");
 const app = express();
 
 app.use(cors());
+
 app.use(express.json());
 
 let connection;

@@ -1,4 +1,5 @@
 import * as z from "zod";
+import sanitizeHtml from "sanitize-html";
 
 export const productSchema = z.object({
   id: z.coerce
@@ -7,8 +8,13 @@ export const productSchema = z.object({
     .optional(),
   name: z
     .string()
-    .trim()
     .min(3, "Aleast 3 Character Alphabet is required")
+    .transform((val) =>
+      sanitizeHtml(val, {
+        allowedTags: [],
+        allowedAttributes: [],
+      })
+    ) 
     .optional(),
 
   maxPrice: z.coerce
@@ -28,4 +34,3 @@ export const productSchema = z.object({
     })
     .optional(),
 });
-
