@@ -9,6 +9,7 @@ export const productSchema = z
       .optional(),
     name: z
       .string()
+      .regex(/^[A-Za-z ]+$/, { message: "only Alphabets are allowed" })
       .refine(
         (val) => {
           for (let i = 0; i < val.length; i++) {
@@ -24,12 +25,12 @@ export const productSchema = z
         { message: "Alphabets are only allowed." }
       )
       .min(3, "Aleast 3 Character Alphabet is required")
-      .transform((val) =>
-        sanitizeHtml(val, {
-          allowedTags: [],
-          allowedAttributes: [],
-        })
-      )
+      // .transform((val) =>
+      //   sanitizeHtml(val, {
+      //     allowedTags: [],
+      //     allowedAttributes: [],
+      //   })
+      // )
       .optional(),
 
     maxPrice: z.coerce
