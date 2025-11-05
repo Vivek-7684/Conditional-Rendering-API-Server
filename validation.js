@@ -10,20 +10,20 @@ export const productSchema = z
     name: z
       .string()
       .regex(/^[A-Za-z ]+$/, { message: "only Alphabets are allowed" })
-      .refine(
-        (val) => {
-          for (let i = 0; i < val.length; i++) {
-            if (
-              !(val[i] >= "A" && val[i] <= "Z") ||
-              (val[i] >= "a" && val[i] <= "z")
-            ) {
-              return true;
-            }
-          }
-          return false;
-        },
-        { message: "Alphabets are only allowed." }
-      )
+      // .refine(
+      //   (val) => {
+      //     for (let i = 0; i < val.length; i++) {
+      //       if (
+      //         !(val[i] >= "A" && val[i] <= "Z") ||
+      //         (val[i] >= "a" && val[i] <= "z")
+      //       ) {
+      //         return true;
+      //       }
+      //     }
+      //     return false;
+      //   },
+      //   { message: "Alphabets are only allowed." }
+      // )
       .min(3, "Aleast 3 Character Alphabet is required")
       // .transform((val) =>
       //   sanitizeHtml(val, {
