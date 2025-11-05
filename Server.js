@@ -20,7 +20,7 @@ let connection;
 
 app.get("/Product", async (req, res) => {
   try {
-    const { name, maxPrice, minPrice, category } = req.query;
+    const { name, maxPrice, minPrice, category, id } = req.query;
 
     const result = productSchema.safeParse(req.query);
 
@@ -29,6 +29,7 @@ app.get("/Product", async (req, res) => {
     }
 
     let query = "Select * from sample_product Where 1=1";
+
     let fields = [];
 
     if (name) {
@@ -43,17 +44,26 @@ app.get("/Product", async (req, res) => {
 
     if (category) query += ` AND category = '${category}'`;
 
+    if (id) query += ` AND id = '${id}'`;
+
     const [rows] = await connection.execute(query);
 
     if (rows.length === 0) {
+
       return res.status(404).send("No Products Found");
+
     } else {
+
       res.status(200).send(rows);
+
     }
   } catch (err) {
+
     res.status(500).send("Error: " + err.message);
+    
   }
 });
+
 
 app.post("/AddProduct", async (req, res) => {
   try {
