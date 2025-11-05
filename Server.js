@@ -91,6 +91,53 @@ app.post("/AddProduct", async (req, res) => {
   }
 });
 
+app.put("/updateProduct/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send("Product Id is Required");
+    }
+
+    const result = productSchema.safeParse(req.params);
+
+    if (!result.success) {
+      return res.status(400).send(fromZodError(result.error).toString());
+    }
+    // validate req.body
+    const { name, maxPrice, minPrice, category } = req.body;
+
+    if (!name || !maxPrice || !minPrice || !category) {
+      return res.status(400).send("All Fields are Required");
+    }
+
+    const resultBody = productSchema.safeParse(req.body);
+
+    if (!resultBody.success) {
+      return res.status(400).send(fromZodError(resultBody.error).toString());
+    }
+
+    // check exist product
+    const checkExistQuery = `SELECT * FROM sample_product WHERE id = ?`;
+
+    const [existingProducts] = await connection.execute(checkExistQuery, [id]);
+
+    if (existingProducts.length === 0) {
+      return res.status(404).send("Product not found");
+    }
+
+    //update Product
+    await connection.execute(
+      "update sample_product set name =  ?,maxPrice = ?,minPrice = ?,category = ? where id = ?",
+      [name, maxPrice, minPrice, category, id]
+    );
+
+    res.status(200).send({ message: "Product Updated Successfully!" });
+  } catch (err) {
+    res.status(500).send("ServerError: " + err.message);
+  }
+});
+
 app.delete("/DeleteProduct/:id", async (req, res) => {
   try {
     const { id } = req.params;
